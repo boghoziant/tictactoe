@@ -1,5 +1,5 @@
 CC=g++
-CFLAGS=
+CFLAGS=-g
 
-tictactoe: main.cpp tictactoe.cpp tictactoe.h
-	$(CC) -o out main.cpp tictactoe.cpp tictactoe.h
+tictactoe: main.cpp tictactoe.cpp tictactoe.h game.h
+	$(CC) -o out main.cpp tictactoe.cpp tictactoe.h game.h $(CFLAGS)

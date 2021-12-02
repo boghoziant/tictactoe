@@ -9,7 +9,6 @@ class tictactoe {
         tictactoe();
         
         void write_xo(int type, int slot);
-    
         void display_board();
     
         int rows;
