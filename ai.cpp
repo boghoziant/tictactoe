@@ -1,60 +1,84 @@
 #include "ai.h"
+#include "util.h"
 
 #include <bits/stdc++.h>
+#include <string>
 
 using namespace std;
 
-int Ai::makeAMove(vector<int> possible_moves, int set[]) {
-    board = set;
-    auto rng = std::default_random_engine {};
-    std::shuffle(std::begin(possible_moves), std::end(possible_moves), rng);
-    int slot = possible_moves.back();
-    possible_moves.pop_back();
-    return slot;
+int Ai::makeAMove(vector<int> possible_moves, int turnsLeft, std::array<int, 9> set) {
+    // pass all possible moves to minimax
+    // record which one gets the best score
+    int bestMove = INT_MIN;
+    int score = 0;
+    int move;
+    // For every position on the board
+    for (int i = 0; i < 9; i++) {
+        // if there's an available move
+        if (set[i] == 0) {
+            // check it's score
+            set[i] = 1;
+            score = miniMax(set, 0, false);
+            cout << "score: " << score << " bestMove: " << bestMove << endl;
+            set[i] = 0;
+            // and remember it if it's the highest so far
+            if (score > bestMove && score < 500) {
+                bestMove = score;
+                move = i;
+            }
+        }
+    }
+    return move;
 }
 
-int Ai::miniMax(int position, int depth, bool maximizingPlayer) {
-	if (depth == 0) //or game over in position
-		return evaluate();
+int Ai::miniMax(array<int, 9> set, int depth, bool isMax) {
+   // doesn't check for tie
+   // check for win
+   int result = checkWin(set);
+   if (result == -1) {
+       return -1;
+   } else if (result == 1) {
+       return 1;
+   } else if (result == 500) {
+       return 0;
+   }
 
-	if (maximizingPlayer) {
-		int maxEval = INT_MIN;
-		for (int i = 1; i < 3; i++) {
-			int eval = miniMax(2 * position + i, depth - 1, false);
-			int maxEval = max(maxEval, eval);
+    int bestMove = 10;
+    int score = 0;
+   if (isMax) {
+    for (int i = 0; i < 9; i++) {
+        // if there's an available move
+        if (set[i] == 0) {
+            // check it's score
+            set[i] = 2;
+            score = miniMax(set, depth + 1, false);
+            set[i] = 0;
+            // and remember it if it's the highest so far
+            if (score > bestMove && score < 500) {
+                bestMove = score;
+            }
         }
-		return maxEval;
-    } else {
-		int minEval = INT_MAX;
-		for (int i = 1; i < 3; i++) {
-			int eval = miniMax(2 * position + i, depth - 1, true);
-			int minEval = min(minEval, eval);
-        }
-		return minEval;
     }
+    return bestMove;
+   } else {
+    for (int i = 0; i < 9; i++) {
+        // if there's an available move
+        if (set[i] == 0) {
+            // check it's score
+            set[i] = 1;
+            score = miniMax(set, depth + 1, true);
+            set[i] = 0;
+            // and remember it if it's the highest so far
+            if (score < bestMove) {
+                bestMove = score;
+            }
+        }
+    }
+    return bestMove;
+   }
 }
 
 int Ai::evaluate() {
-
-    // positive for anything in a row
-    // so look at board and rate based on how many 
-    // markers each side has
-    // e.g., 2 x's in a row is positive 2 o's negative
-    // does the game evaluate or the AI?
-    // could also pass in the board state, i guess I have to
-
     int eval = 0;
-    int prev = 0;
-    for (int i = 0; i < 9; i++) {
-        if (board[i] == 1 && board[i] == prev) {
-            eval++;
-        }
-
-        if (board[i] == 2 && board[i] == prev) {
-            eval--;
-        }
-        prev = board[i];
-    }
-
     return eval;
 }

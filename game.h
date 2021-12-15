@@ -3,9 +3,11 @@
 
 #include "tictactoe.h"
 #include "ai.h"
+#include "util.h"
 
 #include <iostream>
 #include <vector>
+#include <array>
 
 class Game {
     public:
@@ -33,19 +35,18 @@ class Game {
             std::cout << "turn " << turn_count << std::endl;
 
             if (ai && turn_count % 2 != 0) {
-                std::cout <<"is this working when it shouldn't?" << std::endl;
-                slot = player2.makeAMove(possible_moves, set);
+                slot = player2.makeAMove(possible_moves, 9 - turn, set);
             }
 
             // check for repeat moves 
             flag = true;
-            for (int i = 0; i < possible_moves.size(); i++) {
+            for (unsigned int i = 0; i < possible_moves.size(); i++) {
                 if (possible_moves[i] == slot) {
                     flag = false;
                 }
             }
             if (flag) {
-                std::cout << "slot full, pick another" << std::endl;
+                std::cout << "slot : " << slot << " full, pick another" << std::endl;
                 return true;
             }
 
@@ -67,15 +68,14 @@ class Game {
             turn_count++;
 
             // did someone win?
-            victor = end();
-            if (victor == 1) {
+            victor = checkWin(set);
+            if (victor == -1) {
                 std::cout << "x's win \n";
                 return false;
-            } else if (victor == 2) {
+            } else if (victor == 1) {
                 std::cout << "o's win \n";
                 return false;
-            }
-            if (turn_count == 9) {
+            } else if (victor == 500) {
                 std::cout << "tie \n";
                 return false;
             }
@@ -84,64 +84,10 @@ class Game {
             return true;
         }
 
-        int end() {
-            // who wins?
-            // theres like 8 ways to win
-            // just check for those
-            int xes = 0;
-            int os = 0;
-            // horizontal
-            if (set[0] == 1 && set[1] == 1 && set[2] == 1)
-                xes = 1;
-            if (set[3] == 1 && set[4] == 1 && set[5] == 1)
-                xes = 1;
-            if (set[6] == 1 && set[7] == 1 && set[8] == 1)
-                xes = 1;
-
-            if (set[0] == 2 && set[1] == 2 && set[2] == 2)
-                os = 1;
-            if (set[3] == 2 && set[4] == 2 && set[5] == 2)
-                os = 1;
-            if (set[6] == 2 && set[7] == 2 && set[8] == 2)
-                os = 1;
-            // vertical
-            if (set[0] == 1 && set[3] == 1 && set[6] == 1)
-                xes = 1; if (set[1] == 1 && set[4] == 1 && set[7] == 1)
-                xes = 1;
-            if (set[2] == 1 && set[5] == 1 && set[8] == 1)
-                xes = 1;
-
-            if (set[0] == 2 && set[3] == 2 && set[6] == 2)
-                os = 1;
-            if (set[1] == 2 && set[4] == 2 && set[7] == 2)
-                os = 1;
-            if (set[2] == 2 && set[5] == 2 && set[8] == 2)
-                os = 1;
-
-            //diagonal
-            if (set[0] == 1 && set[4] == 1 && set[8] == 1)
-                xes = 1;
-            if (set[6] == 1 && set[4] == 1 && set[2] == 1)
-                xes = 1;
-
-            if (set[0] == 2 && set[4] == 2 && set[8] == 2)
-                os = 1;
-            if (set[6] == 2 && set[4] == 2 && set[2] == 2)
-                os = 1;
-
-            if (xes)
-                return 2;
-
-            if (os)
-                return 1;
-
-            return 0;
-        }
-
         tictactoe g;
         Ai player2;
         bool ai;
-        int set[9];
+        std::array<int, 9> set;
         std::vector<int> possible_moves;
         int turn_count;
         int turn;
