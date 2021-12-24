@@ -11,14 +11,23 @@ int Ai::makeAMove(vector<int> possible_moves, int turnsLeft, std::array<int, 9> 
     // record which one gets the best score
     int bestMove = INT_MIN;
     int score = 0;
-    int move;
+    int move = 0;
     // For every position on the board
     for (int i = 0; i < 9; i++) {
         // if there's an available move
         if (set[i] == 0) {
             // check it's score
             set[i] = 1;
-            score = miniMax(set, 0, false);
+            int result = checkWin(set);
+            if (result == 1)
+                score = 1;
+            else if (result == -1)
+                score = -1;
+            else if (result == 500)
+                score = 0;
+            else
+                score = miniMax(set, 0, false);
+
             cout << "score: " << score << " bestMove: " << bestMove << endl;
             set[i] = 0;
             // and remember it if it's the highest so far
@@ -32,53 +41,57 @@ int Ai::makeAMove(vector<int> possible_moves, int turnsLeft, std::array<int, 9> 
 }
 
 int Ai::miniMax(array<int, 9> set, int depth, bool isMax) {
-   // doesn't check for tie
-   // check for win
-   int result = checkWin(set);
-   if (result == -1) {
-       return -1;
-   } else if (result == 1) {
-       return 1;
-   } else if (result == 500) {
-       return 0;
-   }
-
-    int bestMove = 10;
     int score = 0;
-   if (isMax) {
+    int bestMove;
+    if (isMax)
+        bestMove = INT_MIN;
+    else
+        bestMove = INT_MAX;
     for (int i = 0; i < 9; i++) {
-        // if there's an available move
-        if (set[i] == 0) {
-            // check it's score
-            set[i] = 2;
-            score = miniMax(set, depth + 1, false);
-            set[i] = 0;
-            // and remember it if it's the highest so far
-            if (score > bestMove && score < 500) {
-                bestMove = score;
-            }
-        }
-    }
-    return bestMove;
-   } else {
-    for (int i = 0; i < 9; i++) {
-        // if there's an available move
-        if (set[i] == 0) {
-            // check it's score
-            set[i] = 1;
-            score = miniMax(set, depth + 1, true);
-            set[i] = 0;
-            // and remember it if it's the highest so far
-            if (score < bestMove) {
-                bestMove = score;
-            }
-        }
-    }
-    return bestMove;
-   }
-}
+        if (isMax) {
+            // if there's an available move
+            if (set[i] == 0) {
+                // check it's score
+                set[i] = 1;
+                int result = checkWin(set);
+                if (result == 1)
+                    score = 1;
+                else if (result == -1)
+                    score = -1;
+                else if (result == 500)
+                    score = 0;
+                else
+                    score = miniMax(set, 0, false);
 
-int Ai::evaluate() {
-    int eval = 0;
-    return eval;
-}
+                set[i] = 0;
+
+                if (score > bestMove && score < 500)
+                    bestMove = score;
+            }
+        } else {
+            // if there's an available move
+            if (set[i] == 0) {
+                // check it's score
+                set[i] = 2;
+                int result = checkWin(set);
+                if (result == 1)
+                    score = 1;
+                else if (result == -1)
+                    score = -1;
+                else if (result == 500)
+                    score = 0;
+                else
+                    score = miniMax(set, 0, true);
+
+                set[i] = 0;
+
+                if (score < bestMove && score < 500) {
+                    bestMove = score;
+                }
+
+            } 
+         }
+    }
+    return bestMove;
+};
+

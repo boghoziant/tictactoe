@@ -12,6 +12,7 @@
 class Game {
     public:
         Game(bool p2) {
+
             if (p2)
                 ai = true;
             else
